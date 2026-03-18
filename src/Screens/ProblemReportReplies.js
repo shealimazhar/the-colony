@@ -8,6 +8,12 @@ import ViewProblemReport from "./ViewProblemReport"
 import axios from 'axios';
 import { URL } from '../utils/Constant';
 import Color from '../Color';
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.slice(0, 10).split("-");
+  return `${day}/${month}/${year}`;
+};
+
 const ProblemReportReplies = ({navigation,route}) => {
   const { id, jobTitle, reply, ticket_subject, ticket_message, ticket_priority, ticket_status, ticketDetail , id2 , subject2, jobTitle2} = route.params;
   const ticketDetails = {
@@ -72,7 +78,7 @@ const ProblemReportReplies = ({navigation,route}) => {
                 <Image source={require('../../assets/imgs/avator.png')} style={styles.Image} />
                 </View>
                 <View style={styles.right}>
-                  <Text style={styles.text}>{`by ${item.first_name} on ${item.ticketreply_created.slice(0,10)}`}</Text>
+                  <Text style={styles.text}>{`by ${item.first_name} on ${formatDate(item.ticketreply_created)}`}</Text>
                   <Text style={styles.text}>{item.ticketreply_text}</Text>
                 </View>
               </View>

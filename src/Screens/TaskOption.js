@@ -1,11 +1,24 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const TaskOption = ({ navigation, route }) => {
-  const { items, Alldata, screenName } = route.params;
+  const { items: initialItems, Alldata, screenName } = route.params;
+  const [items, setItems] = useState(initialItems);
+  const itemsRef = useRef(items);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  // Callback that updates both ref and state
+  const handleTaskUpdate = useCallback((updatedItems) => {
+    itemsRef.current = updatedItems;
+    setItems(updatedItems);
+  }, []);
   let data = [
     {
       title: "Tasks Information",
@@ -42,9 +55,10 @@ const TaskOption = ({ navigation, route }) => {
             activeOpacity={0.6}
             onPress={() =>
               navigation.navigate(item.redirect, {
-                items: items,
+                items: itemsRef.current,
                 screenName: screenName,
                 Alldata: Alldata,
+                onTaskUpdate: handleTaskUpdate,
               })
             }
             style={[styles.individual, { backgroundColor: item.bgColor }]}

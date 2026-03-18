@@ -47,14 +47,16 @@ const ImagePickerFiles = ({ setData, index, data, items, currentIndex }) => {
       if (sourceType === 'gallery') {
         result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
-          allowsEditing: true,
+          // allowsEditing: true,
+          allowsEditing: false,
           aspect: [4, 3],
           quality: 1,
         });
       } else if (sourceType === 'camera') {
         result = await ImagePicker.launchCameraAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
-          allowsEditing: true,
+          // allowsEditing: true,
+          allowsEditing: false,
           aspect: [4, 3],
           quality: 1,
         });
@@ -68,7 +70,7 @@ const ImagePickerFiles = ({ setData, index, data, items, currentIndex }) => {
           type: 'image/jpeg',
           name: 'photo.jpg',
         };
-
+console.log('........',photo, result.assets[0].uri)
         // Upload the image
         uploadImage(photo, result.assets[0].uri);
       }

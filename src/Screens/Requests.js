@@ -87,35 +87,11 @@ const Requests = ({ navigation, route }) => {
   };
 
   function formatDate(inputDate) {
-    // Create a JavaScript Date object from the input date string
     const date = new Date(inputDate);
-
-    // Define arrays for month names and month abbreviations
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-
-    // Extract day, month, and year from the Date object
-    const day = date.getDate();
-    const monthIndex = date.getMonth();
-    const monthName = monthNames[monthIndex];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-
-    // Format the date in the desired format (DD-Month)
-    const formattedDate = `${day}-${monthName}`;
-
-    return formattedDate;
+    return `${day}/${month}/${year}`;
   }
 
   console.log(filteredData, 'filteredData');

@@ -159,7 +159,7 @@ const JobsDetail = ({route, navigation}) => {
         ) : null}
       </View>
       <Modal isVisible={isModalVisible}>
-      <View style={{ height: 400, backgroundColor: Color.brightOrange, justifyContent: 'center', alignItems: 'center' ,borderRadius:20 }}>
+      <View style={{ height: 400, backgroundColor: Color.brightOrange, justifyContent: 'center', alignItems: 'center' ,borderRadius:20 ,bottom:70}}>
         { selectedOptionID == 5 && <UpdateModal toggleModal={toggleModal} data={items}  setUdateItem={setUdateItem}/> }
         { selectedOptionID == 6 && <NoteModal toggleModal={toggleModal} data={items}  saveNote={saveNote} /> }
         {/* Close button */}

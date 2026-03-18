@@ -12,10 +12,10 @@ const NewProblemReport = ({navigation,route,Data}) => {
     const { items } = route.params;
     const getCurrentDate = () => {
         const today = new Date();
-        const year = String(today.getFullYear()).slice(-2); // Get last 2 digits of the year
+        const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        return `${day}-${month}-${year}`;
+        return `${day}/${month}/${year}`;
     };
     const [data, setData] = useState({
         date: getCurrentDate(),

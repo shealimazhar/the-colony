@@ -33,47 +33,47 @@ const DashboardTopItem = ({ item, navigation }) => {
 
 const DashboardTop = ({ navigation, data }) => {
   const [item, setItem] = useState()
-  useEffect(()=>{
+  useEffect(() => {
     setItem([
       {
-      img: calenderimg,
-      number: data?.projects?.pending,
-      title: "My Jobs",
-      color: "#FFC001",
-      iconName: "calendar-today",
-      iconType: "material",
-      screen: "WorkLog",
-    },
-    {
-      img: calenderimg,
-      number: data?.tasks?.new,
-      title: "New - Tasks",
-      color: "#B8780C",
-      iconName: "pluscircleo",
-      iconType: "ant",
-      screen: "task-in-pending",
-      ScreenTitle:"Task In Pending",
-    },
-    {
-      img: calenderimg,
-      number: data?.tasks?.in_progress,
-      title: "Task - In Progress",
-      color: "#774F07",
-      iconName: "arrow-with-circle-right",
-      iconType: "entypo",
-      screen: "task-in-progress",
-      ScreenTitle:"Task In Progress",
-    },
-    {
-      img: calenderimg,
-      number: data?.leaves?.new,
-      title: "Requests",
-      color: "#382504",
-      iconName: "clockcircleo",
-      iconType: "ant",
-      screen: "requests",
-    }])
-  },[data])
+        img: calenderimg,
+        number: data?.projects?.pending,
+        title: "My Jobs",
+        color: "#FFC001",
+        iconName: "calendar-today",
+        iconType: "material",
+        screen: "WorkLog",
+      },
+      {
+        img: calenderimg,
+        number: data?.tasks?.new,
+        title: "New - Tasks",
+        color: "#B8780C",
+        iconName: "pluscircleo",
+        iconType: "ant",
+        screen: "task-in-pending",
+        ScreenTitle: "Task In Pending",
+      },
+      {
+        img: calenderimg,
+        number: data?.tasks?.in_progress,
+        title: "Task - In Progress",
+        color: "#774F07",
+        iconName: "arrow-with-circle-right",
+        iconType: "entypo",
+        screen: "task-in-progress",
+        ScreenTitle: "Task In Progress",
+      },
+      {
+        img: calenderimg,
+        number: data?.leaves?.new,
+        title: "Requests",
+        color: "#382504",
+        iconName: "clockcircleo",
+        iconType: "ant",
+        screen: "requests",
+      }])
+  }, [data])
 
   return (
     <View style={styles.container}>
@@ -97,22 +97,22 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: 'center',
     justifyContent: 'center',
-    gap: vw*3,
+    gap: vw * 3,
     marginHorizontal: 6,
   },
   itemContainer: {
-    height: vh*18.5,
+    height: vh * 18.5,
     width: vw * 45,
     borderRadius: 10,
     padding: 17,
   },
   number: {
     color: "white",
-    fontSize: vw*7,
+    fontSize: vw * 7,
   },
   title: {
     color: "white",
-    fontSize: vw*4,
+    fontSize: vw * 4,
   },
   containerIcon: {
     display: "flex",

@@ -17,15 +17,15 @@ const Calender = ({navigation,route}) => {
     useEffect(()=>{
         (async ()=>{
             const authToken = await AsyncStorage.getItem("token");
-            await axios.get(URL + '/job-status',{
+            await axios.get(URL + '/task/all',{
                 headers: {
                     Authorization: `Bearer ${authToken}`
                 }
             }).then((res)=>{
                 let responseData=res.data
-                setData(responseData.projects.data);
-                       const extractedDates = responseData.projects.data.map(project => {
-                    return [project.project_date_start, project.project_date_due];
+                setData(responseData.tasks.data);
+                const extractedDates = responseData.tasks.data.map(task => {
+                    return [task.project_date_start, task.project_date_due];
                 }).filter(pair => pair.every(date => date !== null));
                 setAllDates(extractedDates);
                 setLoading(false)

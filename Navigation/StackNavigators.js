@@ -105,7 +105,8 @@ function HomeScreenStack() {
         name="jobs-detail"
         component={JobsDetail}
         options={{
-          title: "Job Info",
+          title: "",
+          headerBackTitle: "Back",
         }}
       />
       <HomeStack.Screen

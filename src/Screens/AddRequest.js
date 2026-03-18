@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput,Alert, ScrollView, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TextInput, Alert, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import Color from '../Color'
 import { vw,vh } from '../utils/ScreenSize'
@@ -14,10 +14,10 @@ import { ContextProvider } from '../Global/Context';
 const AddRequest = () => {
     const { setUpdation ,selectedRequestCategory  } = useContext(ContextProvider);
     const [leave, setLeave] = useState({
-        leave_title: "",
+        // leave_title: "",
         leave_start_date: new Date().toISOString(),
         leave_end_date: new Date().toISOString(),
-        leave_reason: "",
+        leave_description: "",
         leave_type: selectedRequestCategory,
         day_to_taken: "",
         department: "",
@@ -91,7 +91,15 @@ const AddRequest = () => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${day}/${month}/${year}`;
+  }
+
+  function formatDisplayDate(isoString) {
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
 
@@ -99,8 +107,12 @@ const AddRequest = () => {
     /* Check this data */
     const departmentData=["Office", "Topo Surveyor", "Utilities Surveyor", 'CAD Team']
   return (
-    <View style={styles.mainContainer}>
-        <ScrollView>
+    <KeyboardAvoidingView 
+        style={styles.mainContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+        <ScrollView keyboardShouldPersistTaps="handled">
             <View style={styles.fieldsContainer}>
               
                 <View>
@@ -127,18 +139,15 @@ const AddRequest = () => {
                         }}
                         />
                 </View>
-                <View>
+                {/* <View>
                     <Text style={styles.label}>Reason Title*</Text>
                     <TextInput value={leave.leave_title} style={styles.dayInput} onChangeText={(text)=>updateLeave(text, 'leave_title')} />
-                </View>
-                <View>
-                    <Text style={styles.label}>Reason*</Text>
-                    <TextInput value={leave.leave_reason} multiline={true} textAlignVertical="top"  numberOfLines={6} style={styles.reasonInput} onChangeText={(text)=>updateLeave(text, "leave_reason")} />
-                </View>
+                </View> */}
+                
                 <View>
                     <Text style={styles.label}>Start Date*</Text>
                     <TouchableOpacity activeOpacity={0.6} style={[styles.dayInput,{justifyContent:'center'}]} onPress={()=>showDatePicker('leave_start_date')}>
-                        <Text>{leave.leave_start_date.toString().slice(0,10)}</Text>
+                        <Text>{formatDisplayDate(leave.leave_start_date)}</Text>
                         <DateTimePickerModal
                             isVisible={isDatePickerVisible}
                             mode="date"
@@ -150,7 +159,7 @@ const AddRequest = () => {
                 <View>
                     <Text style={styles.label}>End Date*</Text>
                     <TouchableOpacity activeOpacity={0.6} style={[styles.dayInput,{justifyContent:'center'}]} onPress={()=>showDatePicker('leave_end_date')}>
-                        <Text>{leave.leave_end_date.toString().slice(0,10)}</Text>
+                        <Text>{formatDisplayDate(leave.leave_end_date)}</Text>
                         <DateTimePickerModal
                             isVisible={isDatePickerVisible}
                             mode="date"
@@ -160,8 +169,12 @@ const AddRequest = () => {
                     </TouchableOpacity>
                 </View>
                 <View>
-                    <Text style={styles.label}>Days to be taken*</Text>
+                    <Text style={styles.label}>Days To Be Taken*</Text>
                     <TextInput value={leave.day_to_taken} style={styles.dayInput} onChangeText={(text)=>updateLeave(text, 'day_to_taken')} />
+                </View>
+                <View>
+                    <Text style={styles.label}>Description*</Text>
+                    <TextInput value={leave.leave_description} multiline={true} textAlignVertical="top"  numberOfLines={6} style={styles.reasonInput} onChangeText={(text)=>updateLeave(text, "leave_description")} />
                 </View>
                 <View >
                     <Text style={styles.label}>Department*</Text>
@@ -194,7 +207,7 @@ const AddRequest = () => {
             </View>
         </ScrollView>
         <Toast/>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 

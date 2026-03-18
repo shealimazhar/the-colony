@@ -35,15 +35,13 @@ const ProblemReports = ({navigation, data,ID}) => {
     if(inputDate){
       const [year, month, day] = inputDate?.split('-');
       const date = new Date(year, month - 1, day);
-      const formattedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
       const formattedDay = date.getDate().toString().padStart(2, '0');
-      const formattedYear = date.getFullYear().toString().slice(2);
-      const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-      return formattedDate;
+      const formattedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
+      const formattedYear = date.getFullYear();
+      return `${formattedDay}/${formattedMonth}/${formattedYear}`;
     }else{
       return null
     }
-  
   }
     
   return (

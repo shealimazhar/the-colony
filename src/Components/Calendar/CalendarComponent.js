@@ -90,7 +90,7 @@ const CalendarComponent = ({ setSelectedDate, AllDates }) => {
   };
 
   const makeMarkDates = () => {
-    markedDates = {};
+   const markedDates = {};
     datesArray.forEach((individual_array, index) => {
       individual_array.forEach((date) => {
         const resultData = checkDateInArray(date);
@@ -179,7 +179,14 @@ const CalendarComponent = ({ setSelectedDate, AllDates }) => {
 
         }}
         markingType="multi-period"
-        markedDates={markingDates}
+        // markedDates={markingDates}
+        // markedDates={selecteddate}
+        markedDates={{
+          [selecteddate]: {
+            selected: true,
+            selectedColor: 'white', // background color of selected date
+            selectedTextColor: 'black', // text color of selected date
+          },}}
       />
     </View>
   ) : (

@@ -16,11 +16,31 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { URL } from "../utils/Constant";
 import { ContextProvider } from "../Global/Context";
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const [year, month, day] = dateString.split("-");
+  return `${day}/${month}/${year}`;
+};
+
 const TaskDetail = ({ navigation, route }) => {
-  const { items, Alldata, screenName } = route.params;
+  const { items: initialItems, Alldata, screenName } = route.params;
+  const [items, setItems] = useState(initialItems);
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
   const { setUpdation } = useContext(ContextProvider);
+
+  // Sync items with route.params when screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      const currentItems = route.params?.items;
+      if (currentItems && currentItems.task_status !== items.task_status) {
+        setItems(currentItems);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, route.params?.items, items.task_status]);
 
   useEffect(() => {
     setData([
@@ -39,11 +59,11 @@ const TaskDetail = ({ navigation, route }) => {
       },
       {
         label: "Start Date",
-        value: items?.project_date_start,
+        value: formatDate(items?.project_date_start),
       },
       {
         label: "End Date",
-        value: items?.project_date_due,
+        value: formatDate(items?.project_date_due),
       },
       {
         label: "Priority",
@@ -53,11 +73,7 @@ const TaskDetail = ({ navigation, route }) => {
     setTimeout(() => {
       setLoading(false);
     }, 1000);
-  }, []);
-
-  useEffect(() => {
-    console.log(screenName, "screenName....");
-  }, [screenName, items]);
+  }, [items]);
 
   const options = [
     "New (Unassigned)",
@@ -77,39 +93,54 @@ const TaskDetail = ({ navigation, route }) => {
   };
 
   const updateTask = async () => {
-    const statusObject = await data?.find((item) => item?.label === "Status");
+    const statusObject = data?.find((item) => item?.label === "Status");
     const authToken = await AsyncStorage.getItem("token");
-    console.log(items?.task_id, "task_id");
-    await axios
-      .post(
+    const newStatus = statusObject?.value + 1;
+    
+    setUpdating(true);
+    
+    try {
+      const response = await axios.post(
         URL + "/update-task/" + items?.task_id,
         {
-          task_status: statusObject?.value + 1,
+          task_status: newStatus,
         },
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         }
-      )
-      .then((res) => {
-        Toast.show({
-          type: "success",
-          text1: "Task Updated Successfully!",
-          visibilityTime: 1000,
-          topOffset: 5,
-          style: {
-            width: 100 * vw,
-          },
-        });
-        setUpdation((pre) => [...pre]);
-        setTimeout(() => {
-          navigation.navigate(screenName, { Task: data, items: Alldata });
-        }, 1000);
-      })
-      .catch((err) => {
-        console.log(err);
+      );
+      
+      const updatedItems = { ...items, task_status: newStatus };
+      setItems(updatedItems);
+      
+      navigation.setParams({ items: updatedItems });
+      
+      // Call callback to update parent screen's data
+      if (route.params?.onTaskUpdate) {
+        route.params.onTaskUpdate(updatedItems);
+      }
+      
+      setUpdation((pre) => [...pre]);
+      
+      Toast.show({
+        type: "success",
+        text1: "Task Updated Successfully!",
+        visibilityTime: 1500,
+        topOffset: 5,
       });
+    } catch (err) {
+      const errorMessage = err?.response?.data?.message || "Failed to update task";
+      Toast.show({
+        type: "error",
+        text1: errorMessage,
+        visibilityTime: 2500,
+        topOffset: 5,
+      });
+    } finally {
+      setUpdating(false);
+    }
   };
   function stripHtmlTags(str) {
     return (str || "N/A").replace(/<[^>]*>/g, "");
@@ -200,13 +231,16 @@ const TaskDetail = ({ navigation, route }) => {
               </View>
             </View>
             <TouchableOpacity
-              style={styles.btnContainer}
+              style={[styles.btnContainer, updating && { opacity: 0.7 }]}
               activeOpacity={0.6}
               onPress={updateTask}
+              disabled={updating}
             >
-              <Text style={styles.submitTxt} onPress={updateTask}>
-                Update
-              </Text>
+              {updating ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Text style={styles.submitTxt}>Update</Text>
+              )}
             </TouchableOpacity>
           </ScrollView>
           <Toast />

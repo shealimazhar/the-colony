@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ImageBackground, TextInput, Image,ActivityIndicator, Dimensions, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, TextInput, Image, ActivityIndicator, Dimensions, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useEffect, useState, useContext } from 'react';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { vh, vw } from '../utils/ScreenSize';
@@ -13,30 +13,33 @@ const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { TokenSetter,setLOGINSTATE,  } = useContext(ContextProvider);
+  const { TokenSetter, setLOGINSTATE, } = useContext(ContextProvider);
 
   useEffect(() => {
-    (async()=>{
+    (async () => {
       const authToken = await AsyncStorage.getItem("token");
       if (authToken && authToken !== "") {
         setLOGINSTATE(true);
-        navigation.navigate("Dashboard");
       }
     })()
   }, []);
 
   const Login = () => {
-    setLoading(true); 
-    axios.post(URL + "/login",{},{
-          params: {
-            email: email,
-            password: password,
-          },
-        }
-      )
+    setLoading(true);
+    axios.post(URL + "/login", {}, {
+      params: {
+        email: email,
+        password: password,
+      },
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    }
+    )
       .then((res) => {
-        const token=res.data.token
-        if(token){
+        const token = res.data.token
+        if (token) {
           (async function () {
             await AsyncStorage.setItem("token", res.data.token);
             const userDetail = {
@@ -47,42 +50,40 @@ const Login = ({ navigation }) => {
             };
             const userDetailString = JSON.stringify(userDetail);
             await AsyncStorage.setItem("userDetail", userDetailString);
-              Toast.show({
+            Toast.show({
               type: 'success',
               text1: 'Login Successfully!',
               text2: 'we are moving you toward dashboard',
-               visibilityTime:1200
+              visibilityTime: 1200
             });
             setTimeout(() => {
-              navigation.navigate("Dashboard");
+              setLOGINSTATE(true);
               setEmail('');
               setPassword('');
-            }, 1400); 
-            setTimeout(() => {
-              setLOGINSTATE(true)
-            }, 1200); 
+            }, 1400);
             TokenSetter(token)
           })();
         }
-        else{
+        else {
           Toast.show({
             type: 'error',
             text1: 'Error while Login',
             text2: 'Might be due to invalid Credentials',
-            visibilityTime:2000
+            visibilityTime: 2000
           });
         }
-    
+
       })
       .catch((err) => {
+        console.log(err);
+        console.log(err.response.data.message);
         Toast.show({
           type: 'error',
           text1: 'Error while Login',
           text2: 'Might be due to invalid Credentials',
-          visibilityTime:2000
+          visibilityTime: 2000
         });
-        console.log(err);
-      }).finally(()=>{
+      }).finally(() => {
         setLoading(false)
       })
   };
@@ -94,7 +95,11 @@ const Login = ({ navigation }) => {
   return (
     <ImageBackground source={require('../../assets/imgs/Bg.png')} style={styles.backgroundImage}>
       <StatusBar translucent backgroundColor="transparent" />
-      <KeyboardAvoidingView  behavior={Platform.OS === 'ios' ? 'padding' : 'height'} enabled  style={styles.container}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+        style={styles.container}
+      >
         <View style={styles.container}>
           <Image source={require('../../assets/imgs/logoLogin.png')} style={styles.Image} />
           <Text style={styles.text1}>Welcome back!</Text>
@@ -120,30 +125,30 @@ const Login = ({ navigation }) => {
                 value={password}
                 onChangeText={(text) => setPassword(text)}
               />
-             <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIconContainer}>
-              <FontAwesome
-                name={showPassword ? 'eye' : 'eye-slash'}
-                size={20}
-                color="black"
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIconContainer}>
+                <FontAwesome
+                  name={showPassword ? 'eye' : 'eye-slash'}
+                  size={20}
+                  color="black"
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
             </View>
-            
+
           </View>
           <TouchableOpacity onPress={() => Login()} activeOpacity={0.6} style={styles.signInButton} disabled={loading}>
             {loading ? (
               <View style={styles.loaderContainer}>
-                 <Text style={styles.textSignIn}>Signing In</Text>
-                <ActivityIndicator  size="small" color="white" />
-              </View> 
+                <Text style={styles.textSignIn}>Signing In</Text>
+                <ActivityIndicator size="small" color="white" />
+              </View>
             ) : (
               <Text style={styles.textSignIn}>Sign In</Text>
             )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-      <Toast/>
+      <Toast />
     </ImageBackground>
   );
 };
@@ -159,7 +164,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
   },
   container: {
-    flex:1,
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -169,9 +174,9 @@ const styles = StyleSheet.create({
     height: 250,
     width: 250,
     marginTop: -50,
-    marginBottom:20
+    marginBottom: 20
   },
-text1: {
+  text1: {
     fontSize: 22,
     fontWeight: "800",
     marginTop: -20,
@@ -218,9 +223,9 @@ text1: {
     color: "white",
     fontSize: 18,
   },
-  loaderContainer:{
-    display:"flex",
-    flexDirection:"row",
-    gap:5
+  loaderContainer: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 5
   }
 });

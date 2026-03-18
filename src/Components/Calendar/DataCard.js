@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView , ActivityIndicator} from 'react-native'
 import React, { useEffect, useState } from 'react';
 import Color from '../../Color';
+import moment from 'moment';
 import { vh,vw } from '../../utils/ScreenSize';
 import { Ionicons } from '@expo/vector-icons'; 
 
@@ -10,18 +11,17 @@ const DataCard = ({navigation,item,index}) => {
     {
         item?
         (
-            <TouchableOpacity onPress={()=>navigation.navigate("jobs-detail",{items: item})} key={index}
+            <TouchableOpacity onPress={()=>navigation.navigate("taskoption",{items: item, screenName: "calender"})} key={index}
              activeOpacity={0.6} >
                 <View style={styles.individual}>
                     <View style={styles.individualLeft}>  
                         <Text style={styles.line}></Text>
                         <View >
                             <View style={styles.textContainer}>
-                                <Text style={styles.dataText}>{item.project_title.trim()}</Text>
-                                <Text style={styles.dataText2}>({item.client_company_name.trim()})</Text>
+                                <Text style={styles.dataText}>{(item.project_title || item.task_title || "").trim()}</Text>
+                                <Text style={styles.dataText2}>({(item.client_company_name || "").trim()})</Text>
                             </View>
-                            <Text style={styles.dataText3}>{item.project_date_start || "N/A"} - {item.project_date_due || "N/A"}</Text>
-                            {/* <Text style={styles.dataText2}>({item.project_date_start})</Text> */}
+                            <Text style={styles.dataText3}>{ item.project_date_start ? moment(item.project_date_start).format('DD/MM/YYYY') || "N/A":"N/A"} - {item.project_date_due? moment(item.project_date_due).format('DD/MM/YYYY') || "N/A":"N/A"}</Text>
                         </View>
                     </View>
                     <View style={styles.individualRight}>

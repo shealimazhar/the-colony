@@ -2,12 +2,12 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   TouchableOpacity,
   Modal,
 } from "react-native";
+import { Image } from "expo-image";
 import { FlashList } from "@shopify/flash-list";
-import React, { useEffect, useState, useMemo } from "react"; // Added useMemo
+import React, { useEffect, useState, useMemo, useCallback, memo } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { ScrollView } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +23,68 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+const STORAGE_BASE = "https://geomap.imaginedesigns.co/storage/files";
+const MASONRY_HEIGHTS = [150, 200, 170, 130, 190, 160, 140, 180];
+
+const ImageWithShimmer = memo(({ uri, onPress, height, isUploading }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+  const shimmerTranslate = useSharedValue(0);
+
+  useEffect(() => {
+    shimmerTranslate.value = withRepeat(
+      withTiming(1, { duration: 1000 }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: shimmerTranslate.value * 200 - 100,
+      },
+    ],
+  }));
+
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      {imageLoading && (
+        <View style={[styles.imageContainer, { height }]}>
+          <Animated.View style={[styles.shimmerLayer, animatedStyle]}>
+            <LinearGradient
+              colors={["#E0E0E0", "#F0F0F0", "#E0E0E0"]}
+              style={styles.gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
+          </Animated.View>
+        </View>
+      )}
+      <Image
+        source={{ uri }}
+        style={[
+          styles.imageContainer,
+          { height, opacity: isUploading ? 0.6 : 1 },
+        ]}
+        contentFit="cover"
+        cachePolicy={isUploading ? "none" : "disk"}
+        transition={200}
+        onLoad={() => setImageLoading(false)}
+        onError={() => setImageLoading(false)}
+      />
+      {isUploading && (
+        <View style={styles.uploadingOverlay}>
+          <MaterialCommunityIcons
+            name="cloud-upload"
+            size={32}
+            color="white"
+          />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+});
+
 const FileUpload = ({ navigation, route }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,11 +93,12 @@ const FileUpload = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    fetchAttachments();
+    fetchAttachments(true);
   }, [items]);
 
-  const fetchAttachments = async () => {
+  const fetchAttachments = async (isInitialLoad = false) => {
     try {
+      if (isInitialLoad) setLoading(true);
       const authToken = await AsyncStorage.getItem("token");
       const response = await axios.get(
         `${URL}/task/${Number(items.project_id)}/show-attachments`,
@@ -47,9 +110,9 @@ const FileUpload = ({ navigation, route }) => {
         }
       );
       setData(response.data.attachments.data);
-      setLoading(false);
     } catch (err) {
       console.log(err);
+    } finally {
       setLoading(false);
     }
   };
@@ -65,8 +128,8 @@ const FileUpload = ({ navigation, route }) => {
       }
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 1,
+        allowsEditing: false,
+        quality: 0.7,
       });
     } else {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -75,8 +138,8 @@ const FileUpload = ({ navigation, route }) => {
         return;
       }
       result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        quality: 1,
+        allowsEditing: false,
+        quality: 0.7,
       });
     }
 
@@ -86,7 +149,19 @@ const FileUpload = ({ navigation, route }) => {
   };
 
   const uploadImage = async (image) => {
-    setLoading(true);
+    const tempId = `temp_${Date.now()}`;
+    const tempAttachment = {
+      attachment_id: tempId,
+      attachment_directory: "",
+      attachment_filename: "",
+      attachment_medium: "",
+      attachment_thumbname: "",
+      _localUri: image.uri,
+      _isUploading: true,
+    };
+
+    setData((prev) => [tempAttachment, ...prev]);
+
     try {
       const authToken = await AsyncStorage.getItem("token");
       const formData = new FormData();
@@ -97,9 +172,7 @@ const FileUpload = ({ navigation, route }) => {
       });
 
       const response = await axios.post(
-        `https://geomap.imaginedesigns.co/api/task/${Number(
-          items.project_id
-        )}/attach-files`,
+        `${URL}/task/${Number(items.project_id)}/attach-files`,
         formData,
         {
           headers: {
@@ -108,19 +181,28 @@ const FileUpload = ({ navigation, route }) => {
           },
         }
       );
-      await fetchAttachments();
+
+      const attachment = response.data?.attachment || response.data?.attachments?.data?.[0];
+      if (attachment) {
+        setData((prev) =>
+          prev.map((item) =>
+            item.attachment_id === tempId ? attachment : item
+          )
+        );
+      } else {
+        await fetchAttachments(false);
+      }
     } catch (error) {
       console.log("Upload error:", error);
+      setData((prev) => prev.filter((item) => item.attachment_id !== tempId));
       alert("Failed to upload image. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return "Date not available";
     const [year, month, day] = dateString.split("-");
-    return `${month}-${day}-${year}`;
+    return `${day}/${month}/${year}`;
   };
 
   const handleImagePress = (imageUri) => {
@@ -128,15 +210,14 @@ const FileUpload = ({ navigation, route }) => {
     setModalVisible(true);
   };
 
-  // Shimmer Skeleton Component with Animation (for global loading)
   const ShimmerSkeleton = () => {
     const shimmerTranslate = useSharedValue(0);
 
     useEffect(() => {
       shimmerTranslate.value = withRepeat(
         withTiming(1, { duration: 1000 }),
-        -1, // Infinite repeat
-        true // Reverse
+        -1,
+        true
       );
     }, []);
 
@@ -174,80 +255,54 @@ const FileUpload = ({ navigation, route }) => {
     );
   };
 
-  // Shimmer for individual images
-  const ImageWithShimmer = ({ uri, onPress }) => {
-    const [imageLoading, setImageLoading] = useState(true);
-    const shimmerTranslate = useSharedValue(0);
-
-    useEffect(() => {
-      shimmerTranslate.value = withRepeat(
-        withTiming(1, { duration: 1000 }),
-        -1,
-        true
-      );
-    }, []);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [
-        {
-          translateX: shimmerTranslate.value * 200 - 100,
-        },
-      ],
-    }));
-
-    const randomHeight = Math.random() * 100 + 100;
-
-    return (
-      <TouchableOpacity onPress={onPress}>
-        {imageLoading && (
-          <View style={[styles.imageContainer, { height: randomHeight }]}>
-            <Animated.View style={[styles.shimmerLayer, animatedStyle]}>
-              <LinearGradient
-                colors={["#E0E0E0", "#F0F0F0", "#E0E0E0"]}
-                style={styles.gradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              />
-            </Animated.View>
-          </View>
-        )}
-        <Image
-          source={{ uri }}
-          style={[styles.imageContainer, { height: randomHeight }]}
-          onLoad={() => setImageLoading(false)}
-          onError={() => setImageLoading(false)}
-        />
-      </TouchableOpacity>
-    );
-  };
-
-  // Split data into two columns for masonry-like layout
   const splitDataIntoColumns = () => {
     const leftColumn = [];
     const rightColumn = [];
     data.forEach((item, index) => {
-      const uri = `https://geomap.imaginedesigns.co/storage/files/${item.attachment_directory}/${item.attachment_filename}`;
+      const dir = item.attachment_directory;
+      const thumbFile =
+        item.attachment_medium || item.attachment_thumbname || item.attachment_filename;
+      const fullFile = item.attachment_filename;
+
+      const thumbUri = item._localUri
+        ? item._localUri
+        : `${STORAGE_BASE}/${dir}/${thumbFile}`;
+      const fullUri = item._localUri
+        ? item._localUri
+        : `${STORAGE_BASE}/${dir}/${fullFile}`;
+
+      const entry = {
+        id: String(item.attachment_id),
+        thumbUri,
+        fullUri,
+        isUploading: !!item._isUploading,
+        height: MASONRY_HEIGHTS[index % MASONRY_HEIGHTS.length],
+      };
+
       if (index % 2 === 0) {
-        leftColumn.push({ uri });
+        leftColumn.push(entry);
       } else {
-        rightColumn.push({ uri });
+        rightColumn.push(entry);
       }
     });
     return [leftColumn, rightColumn];
   };
 
-  // Memoize the column split
   const [leftColumn, rightColumn] = useMemo(
     () => splitDataIntoColumns(),
     [data]
   );
 
-  // Render Item for FlashList
-  const renderItem = ({ item }) => (
-    <ImageWithShimmer
-      uri={item.uri}
-      onPress={() => handleImagePress(item.uri)}
-    />
+  const renderItem = useCallback(
+    ({ item }) => (
+      <ImageWithShimmer
+        uri={item.thumbUri}
+        onPress={() => handleImagePress(item.fullUri)}
+        height={item.height}
+        isUploading={item.isUploading}
+      />
+    ),
+    []
   );
 
   return (
@@ -314,7 +369,7 @@ const FileUpload = ({ navigation, route }) => {
                   <FlashList
                     data={leftColumn}
                     renderItem={renderItem}
-                    keyExtractor={(item, index) => `left-${index}`}
+                    keyExtractor={(item) => `left-${item.id}`}
                     estimatedItemSize={150}
                     showsVerticalScrollIndicator={false}
                   />
@@ -323,7 +378,7 @@ const FileUpload = ({ navigation, route }) => {
                   <FlashList
                     data={rightColumn}
                     renderItem={renderItem}
-                    keyExtractor={(item, index) => `right-${index}`}
+                    keyExtractor={(item) => `right-${item.id}`}
                     estimatedItemSize={150}
                     showsVerticalScrollIndicator={false}
                   />
@@ -335,6 +390,9 @@ const FileUpload = ({ navigation, route }) => {
                 <Image
                   source={{ uri: selectedImage }}
                   style={styles.fullImage}
+                  contentFit="contain"
+                  cachePolicy="disk"
+                  transition={300}
                 />
                 <TouchableOpacity
                   style={styles.closeBtn}
@@ -456,6 +514,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 4,
     backgroundColor: "#E0E0E0",
+    overflow: "hidden",
   },
   modalContainer: {
     flex: 1,
@@ -466,7 +525,6 @@ const styles = StyleSheet.create({
   fullImage: {
     width: "90%",
     height: "80%",
-    resizeMode: "contain",
   },
   closeBtn: {
     backgroundColor: "white",
@@ -496,5 +554,16 @@ const styles = StyleSheet.create({
   gradient: {
     width: 200,
     height: "100%",
+  },
+  uploadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 4,
+    borderRadius: 10,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -3,6 +3,13 @@ import React, { useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import { URL } from '../../utils/Constant'
+
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.slice(0, 10).split("-");
+  return `${day}/${month}/${year}`;
+};
+
 const Update = ({data,updateItem}) => {
   const [loading, setLoading]=useState(true)
   const [update, setUpdate] = useState([]);
@@ -57,7 +64,7 @@ const Update = ({data,updateItem}) => {
                   <View style={styles.textContainer} >
                       <Text>{stripHtmlTags(item?.comment_text || "")}</Text>
                       <Text style={{fontWeight:"bold"}}>{`${item.first_name} ${item.last_name}`}</Text>
-                      <Text style={{ fontStyle: 'italic'}}>{item?.comment_created?.slice(0,10)}</Text>
+                      <Text style={{ fontStyle: 'italic'}}>{formatDate(item?.comment_created)}</Text>
                   </View>
                 </View>)
             }

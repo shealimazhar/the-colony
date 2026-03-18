@@ -40,7 +40,8 @@ const ImagePickerFiles = ({setData,index,data,items,currentIndex}) => {
     if(sourceType=="gallery" && mediaLibraryStatus=="granted"){
       result= await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
+        // allowsEditing: true,
+        allowsEditing: false,
         aspect: [4,3],
         quality: 1,
       });
@@ -48,7 +49,8 @@ const ImagePickerFiles = ({setData,index,data,items,currentIndex}) => {
     if(sourceType=="camera" && cameraStatus=="granted"){
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
+        // allowsEditing: true,
+        allowsEditing: false,
         aspect: [4, 3],
         quality: 1,
       });

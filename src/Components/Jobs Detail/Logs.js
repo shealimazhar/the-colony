@@ -3,6 +3,7 @@ import {
   Text,
   View,
   ScrollView,
+  Alert,
   Image,
   ActivityIndicator,
   TouchableOpacity,
@@ -80,6 +81,8 @@ const Logs = ({ data, screenName, navigation }) => {
             items: filteredData[0],
             tabId: tabData[item.event_item],
           });
+        }else{
+          Alert.alert('Sorry, There Is No File');
         }
         setLoading(false);
       })

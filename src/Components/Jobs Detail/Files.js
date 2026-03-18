@@ -1,5 +1,7 @@
-import { StyleSheet, Text, View , TouchableOpacity, Image,ScrollView,ActivityIndicator } from 'react-native'
-import React,{useEffect, useState} from 'react'
+import { StyleSheet, Text, View , TouchableOpacity, ScrollView,ActivityIndicator } from 'react-native'
+import { Image as RNImage } from 'react-native'
+import { Image } from 'expo-image'
+import React,{useEffect, useState, memo, useCallback} from 'react'
 import { vh,vw } from '../../utils/ScreenSize'
 import Modal from "react-native-modal";
 import AddFolder from '../Modals/AddFolder'
@@ -8,6 +10,7 @@ import { Ionicons,AntDesign } from '@expo/vector-icons';
 import ImagePickerFiles from '../Picker/ImagePickerFiles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import ImageViewer from 'react-native-image-zoom-viewer';
 import { URL } from '../../utils/Constant';
 const Files = ({data}) => {
   const [items, setItems]=useState([])
@@ -81,6 +84,11 @@ const Files = ({data}) => {
     setFileModalVisible(true);
   }
 
+  const images = [
+    {
+      url: `https://geomap.imaginedesigns.co/storage/files/${selectedImage}`,
+    },
+  ];
   
   return (
     <View>
@@ -91,12 +99,12 @@ const Files = ({data}) => {
           {/* Add folder section */}
           <View style={styles.addFolder}>
             <View style={styles.left}>
-              <Image source={require('../../../assets/imgs/close_folder.png')} style={styles.Image} />
+              <RNImage source={require('../../../assets/imgs/close_folder.png')} style={styles.Image} />
               <Text style={styles.text}>Folders</Text>
             </View>
             <View style={styles.right}>
               <TouchableOpacity activeOpacity={0.6} style={styles.addFolderContainer} onPress={toggleModal} >
-                <Image source={require('../../../assets/imgs/addfile.png')} style={styles.Image2} />
+                <RNImage source={require('../../../assets/imgs/addfile.png')} style={styles.Image2} />
                 <Text style={styles.text1}>Add Folders</Text>
               </TouchableOpacity>
             </View>
@@ -112,7 +120,7 @@ const Files = ({data}) => {
                 <View style={styles.individual}>
                   <TouchableOpacity activeOpacity={0.6} style={styles.leftBtmContainer} onPress={()=>handleOpen(index)}>
                     <View style={styles.leftBtm}>
-                      <Image source={currentIndex==index?  require('../../../assets/imgs/opened_folder.png'): require('../../../assets/imgs/close_folder.png')} style={styles.Image3} />
+                      <RNImage source={currentIndex==index?  require('../../../assets/imgs/opened_folder.png'): require('../../../assets/imgs/close_folder.png')} style={styles.Image3} />
                       <Text>{item.file_group_name}</Text>
                     </View>
                   </TouchableOpacity>
@@ -124,7 +132,7 @@ const Files = ({data}) => {
                   <View style={styles.imageContainer}>
                       {item.images.length>0 ? (item.images.map((image, i) => (
                         <TouchableOpacity
-                        key={i}
+                        key={image.file_id || i}
                         onPress={() => handleImageClick(image)}
                       >
                         <View style={styles.ImageWrapper}>
@@ -133,6 +141,9 @@ const Files = ({data}) => {
                               uri: `https://geomap.imaginedesigns.co/storage/files/${image.file_directory}/${image.file_filename}`,
                             }}
                             style={styles.imageFolder}
+                            contentFit="cover"
+                            cachePolicy="disk"
+                            transition={200}
                           />
                           <Text style={styles.fileName}>
                             {image.file_filename}
@@ -166,12 +177,12 @@ const Files = ({data}) => {
           </Modal>
           <Modal isVisible={isFileModalVisible}  >
           <View style={{height:300,display:"flex",flexDirection:"column"}}>
-                <Image
-                  source={{
-                    uri: `https://geomap.imaginedesigns.co/storage/files/${selectedImage}`,
-                  }}
-                  style={styles.modalImage}
-                />
+                 <ImageViewer
+          imageUrls={images}
+          enableSwipeDown={false}
+          enableImageZoom={true}
+          style={styles.modalImage}
+        />
                 <TouchableOpacity
                     style={{ position: 'absolute', top: -10, right: 0,backgroundColor:"white",borderRadius:5, }}
                     onPress={()=>setFileModalVisible(false)}

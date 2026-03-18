@@ -56,7 +56,7 @@ const CustomDrawerContent = (props) => {
 
       {/* Custom options */}
       <View style={styles.drawerFooter}>
-        <TouchableOpacity onPress={()=>navigation.navigate("update-password")} >
+        <TouchableOpacity onPress={()=>navigation.navigate("Main", { screen: "Tabs", params: { screen: "Home", params: { screen: "update-password" } } })} >
           <Text style={styles.drawerFooterText}>Update Password</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={()=>HandleLogout()}>

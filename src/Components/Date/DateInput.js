@@ -41,24 +41,21 @@ const DateInput = ({editable,name,setLeave, dateValue,setData}) => {
 
   function formatDate(inputDate) {
     const dateParts = inputDate.split(' ');
-    const day = dateParts[2];
-    const month = dateParts[1];
+    const day = dateParts[2].padStart(2, '0');
     const monthMap = {
-        "Jan": "January",
-        "Feb": "February",
-        "Mar": "March",
-        "Apr": "April",
-        "May": "May",
-        "Jun": "June",
-        "Jul": "July",
-        "Aug": "August",
-        "Sep": "September",
-        "Oct": "October",
-        "Nov": "November",
-        "Dec": "December"
+        "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
+        "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
+        "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"
     };
-    const formattedDate = `${day} ${monthMap[month]}`;
-    return formattedDate;
+    const month = monthMap[dateParts[1]];
+    const year = dateParts[3];
+    return `${day}/${month}/${year}`;
+  }
+
+  function formatISODate(isoString) {
+    if (!isoString) return "N/A";
+    const [year, month, day] = isoString.split("-");
+    return `${day}/${month}/${year}`;
 }
  
   return (
@@ -86,7 +83,7 @@ const DateInput = ({editable,name,setLeave, dateValue,setData}) => {
       </TouchableOpacity>
     ):(
     <View style={[styles.container,{borderRadius: 40, marginHorizontal:20, width:'100%',backgroundColor: "white"}]}>
-      <Text style={styles.dateValue}>{dateValue}</Text>
+      <Text style={styles.dateValue}>{formatISODate(dateValue)}</Text>
         <AntDesign name="calendar" size={22} color="black" />
       {showDatePicker && (
         <DateTimePicker

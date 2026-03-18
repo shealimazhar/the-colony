@@ -34,3 +34,16 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 credentials.json
+
+# Backend folder (separate repo)
+well-known/
+
+# Yarn cache
+.yarn/
+
+# Android build outputs
+android/app/build/
+/ios
+/android
+muneeb.txt
+WARP.md

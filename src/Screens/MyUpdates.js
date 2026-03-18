@@ -16,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import AntDesign from "@expo/vector-icons/AntDesign";
-
+import moment from 'moment';
 const MyUpdates = ({ navigation, route }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ const MyUpdates = ({ navigation, route }) => {
   const formatDate = (dateString) => {
     if (!dateString) return "Date not available";
     const [year, month, day] = dateString.split("-");
-    return `${month}-${day}-${year}`;
+    return `${day}/${month}/${year}`;
   };
 
   const handleEdittingEnable = () => {
@@ -118,9 +118,9 @@ const MyUpdates = ({ navigation, route }) => {
               <Text
                 style={styles.txt}
               >{`Assigned User: ${items?.assigned[0]?.first_name}`}</Text>
-              <Text style={styles.txt}>{`Stated Data: ${formatDate(
-                items.project_date_start
-              )}`}</Text>
+              <Text style={styles.txt}>{`Stated Data: ${
+                items.project_date_start? moment(items.project_date_start).format('DD/MM/YYYY'): "N/A"
+              }`}</Text>
             </View>
             <View style={styles.container}>
               <View style={styles.containerTop}>
@@ -176,7 +176,7 @@ const MyUpdates = ({ navigation, route }) => {
                       </Text>
                       <View style={styles.dateWrapper}>
                         <Text style={styles.date}>
-                          {formatDate(item?.comment_created?.slice(0, 10)) ||
+                          {item?.comment_created?.slice(0, 10) ? moment(item?.comment_created?.slice(0, 10)).format('DD-MM-YYYY'):"N/A" ||
                             "N/A"}
                         </Text>
                       </View>

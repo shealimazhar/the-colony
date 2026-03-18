@@ -2,7 +2,7 @@
   "expo": {
     "name": "The Colony Solution ltd",
     "slug": "the-colony",
-    "version": "4.2.0",
+    "version": "4.3.2",
     "orientation": "portrait",
     "icon": "./assets/imgs/lb.png",
     "userInterfaceStyle": "light",
@@ -20,7 +20,8 @@
         "usesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.geomapltd.thecolony",
-      "buildNumber": "16"
+      "buildNumber": "25",
+      "deploymentTarget": "15.1"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +33,7 @@
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.waqarmughal005.thecolony",
-      "versionCode": 11
+      "versionCode": 12
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -50,6 +51,9 @@
         {
           "android": {
             "usesCleartextTraffic": true
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
           }
         }
       ],

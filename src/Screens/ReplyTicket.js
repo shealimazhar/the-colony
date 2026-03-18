@@ -76,7 +76,8 @@ const ReplyTicket = ({ navigation, route }) => {
     ) {
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
+        // allowsEditing: true,
+        allowsEditing: false,
         aspect: [4, 3],
         quality: 1,
       });
@@ -84,7 +85,7 @@ const ReplyTicket = ({ navigation, route }) => {
     if (sourceType === 'camera' && cameraStatus === 'granted') {
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
+        allowsEditing: false,
         aspect: [4, 3],
         quality: 1,
       });
@@ -147,7 +148,9 @@ const ReplyTicket = ({ navigation, route }) => {
     const replyFormData = new FormData();
     replyFormData.append('ticketreply_ticketid', id);
     replyFormData.append('ticketreply_text', data?.Problem);
-    replyFormData.append('attachments', imageData);
+    if (imageData) {
+      replyFormData.append('attachments', imageData);
+    }
     const authToken = await AsyncStorage.getItem('token');
     try {
       const response = await fetch(
@@ -220,7 +223,7 @@ const ReplyTicket = ({ navigation, route }) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${day}/${month}/${year}`;
   }
 
 
@@ -270,7 +273,7 @@ const ReplyTicket = ({ navigation, route }) => {
             />
           </View>
           <View>
-            <Text style={styles.label}>Upload Image:*</Text>
+            <Text style={styles.label}>Upload Image (Optional)</Text>
             <TouchableOpacity onPress={() => pickImage('gallery')}>
               <Ionicons
                 name="images"
@@ -289,14 +292,13 @@ const ReplyTicket = ({ navigation, route }) => {
           <TouchableOpacity
             activeOpacity={0.6}
             onPress={submitReply}
-            disabled={!fileUpload || !data?.Problem}
+            disabled={!data?.Problem}
           >
             <View
               style={[
                 styles.btnContainer,
                 {
-                  backgroundColor:
-                    !fileUpload || !data?.Problem ? 'gray' : 'black',
+                  backgroundColor: !data?.Problem ? 'gray' : 'black',
                 },
               ]}
             >
@@ -304,11 +306,8 @@ const ReplyTicket = ({ navigation, route }) => {
                 style={[
                   styles.submitTxt,
                   {
-                    color:
-                      !fileUpload || !data?.Problem
-                        ? 'darkgray'
-                        : 'white',
-                  }, // Change text color too if needed
+                    color: !data?.Problem ? 'darkgray' : 'white',
+                  },
                 ]}
               >
                 Reply
