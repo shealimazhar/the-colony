@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ImageBackground, TextInput, Image, ActivityIndicator, Dimensions, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, TextInput, Image, ActivityIndicator, Dimensions, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import React, { useEffect, useState, useContext } from 'react';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { vh, vw } from '../utils/ScreenSize';
@@ -93,14 +93,18 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground source={require('../../assets/imgs/Bg.png')} style={styles.backgroundImage}>
-      <StatusBar translucent backgroundColor="transparent" />
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
-        style={styles.container}
-      >
-        <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      style={{ flex: 1 }}
+    >
+      <ImageBackground source={require('../../assets/imgs/Bg.png')} style={styles.backgroundImage}>
+        <StatusBar translucent backgroundColor="transparent" />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
           <Image source={require('../../assets/imgs/logoLogin.png')} style={styles.Image} />
           <Text style={styles.text1}>Welcome back!</Text>
           <Text style={styles.text2}>Sign in to view your projects</Text>
@@ -134,7 +138,6 @@ const Login = ({ navigation }) => {
                 />
               </TouchableOpacity>
             </View>
-
           </View>
           <TouchableOpacity onPress={() => Login()} activeOpacity={0.6} style={styles.signInButton} disabled={loading}>
             {loading ? (
@@ -146,10 +149,10 @@ const Login = ({ navigation }) => {
               <Text style={styles.textSignIn}>Sign In</Text>
             )}
           </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-      <Toast />
-    </ImageBackground>
+        </ScrollView>
+        <Toast />
+      </ImageBackground>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -167,6 +170,11 @@ const styles = StyleSheet.create({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
