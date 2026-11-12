@@ -23,7 +23,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-const STORAGE_BASE = "https://geomap.imaginedesigns.co/storage/files";
+const STORAGE_BASE = "http://thecolonysolution.com/storage/files";
 const MASONRY_HEIGHTS = [150, 200, 170, 130, 190, 160, 140, 180];
 
 const ImageWithShimmer = memo(({ uri, onPress, height, isUploading }) => {

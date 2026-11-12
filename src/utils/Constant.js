@@ -1,1 +1,1 @@
-export const URL = "https://geomap.imaginedesigns.co/api";
+export const URL = "http://thecolonysolution.com/api";

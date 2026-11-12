@@ -86,7 +86,7 @@ const Files = ({data}) => {
 
   const images = [
     {
-      url: `https://geomap.imaginedesigns.co/storage/files/${selectedImage}`,
+      url: `http://thecolonysolution.com/storage/files/${selectedImage}`,
     },
   ];
   
@@ -138,7 +138,7 @@ const Files = ({data}) => {
                         <View style={styles.ImageWrapper}>
                           <Image
                             source={{
-                              uri: `https://geomap.imaginedesigns.co/storage/files/${image.file_directory}/${image.file_filename}`,
+                              uri: `http://thecolonysolution.com/storage/files/${image.file_directory}/${image.file_filename}`,
                             }}
                             style={styles.imageFolder}
                             contentFit="cover"

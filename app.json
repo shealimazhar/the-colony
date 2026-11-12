@@ -2,7 +2,7 @@
   "expo": {
     "name": "The Colony Solution ltd",
     "slug": "the-colony",
-    "version": "4.3.2",
+    "version": "4.4.3",
     "orientation": "portrait",
     "icon": "./assets/imgs/lb.png",
     "userInterfaceStyle": "light",
@@ -20,8 +20,7 @@
         "usesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.geomapltd.thecolony",
-      "buildNumber": "25",
-      "deploymentTarget": "15.1"
+      "buildNumber": "25"
     },
     "android": {
       "adaptiveIcon": {
@@ -59,7 +58,8 @@
       ],
       [
         "expo-font"
-      ]
+      ],
+      "expo-asset"
     ],
     "extra": {
       "eas": {
